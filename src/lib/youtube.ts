@@ -111,37 +111,33 @@ export async function getChannelInfo(): Promise<ChannelInfo> {
   }
 }
 
-// ── Últimos episódios: playlist de uploads do canal ───────────
-// uploads playlist = "UU" + channelId sem "UC"
-function uploadsPlaylistId(): string {
-  return 'UU' + CHANNEL_ID.slice(2)
-}
+// ── Últimos episódios: lives concluídas por data ──────────────
 
 export async function getLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
-  const playlistId = uploadsPlaylistId()
   const res = await fetch(
-    `${BASE_URL}/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=${maxResults}&key=${API_KEY}`,
-    { next: { revalidate: 1800 } }
+    `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=${maxResults}&order=date&type=video&eventType=completed&key=${API_KEY}`,
+    { cache: 'no-store' }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
-  return enrichWithDetails(items, (i) => i.snippet.resourceId?.videoId)
+  const videos = await enrichWithDetails(items, (i) => i.id.videoId)
+  return videos.map(v => ({ ...v, isLive: true }))
 }
 
-// ── Episódios mais ouvidos: uploads ordenados por views ───────
+// ── Episódios mais ouvidos: lives por views desc ──────────────
 
 export async function getMostViewedLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
-  const playlistId = uploadsPlaylistId()
   const res = await fetch(
-    `${BASE_URL}/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${API_KEY}`,
-    { next: { revalidate: 3600 } }
+    `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=50&order=date&type=video&eventType=completed&key=${API_KEY}`,
+    { cache: 'no-store' }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
-  const videos = await enrichWithDetails(items, (i) => i.snippet.resourceId?.videoId)
+  const videos = await enrichWithDetails(items, (i) => i.id.videoId)
   return videos
     .sort((a, b) => b.viewCountRaw - a.viewCountRaw)
     .slice(0, maxResults)
+    .map(v => ({ ...v, isLive: true }))
 }
 
 // ── Shorts: tab "Shorts" por view count desc ─────────────────
@@ -150,7 +146,7 @@ export async function getShorts(maxResults = 12): Promise<YouTubeVideo[]> {
   // Busca vídeos curtos (≤ 60s) do canal
   const res = await fetch(
     `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=50&order=date&type=video&videoDuration=short&key=${API_KEY}`,
-    { next: { revalidate: 1800 } }
+    { cache: 'no-store' }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
