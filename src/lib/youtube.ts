@@ -116,7 +116,7 @@ export async function getChannelInfo(): Promise<ChannelInfo> {
 export async function getLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
   const res = await fetch(
     `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=${maxResults}&order=date&type=video&eventType=completed&key=${API_KEY}`,
-    { next: { revalidate: 21600 } }
+    { next: { revalidate: 36000 } }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
@@ -129,7 +129,7 @@ export async function getLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
 export async function getMostViewedLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
   const res = await fetch(
     `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=50&order=date&type=video&eventType=completed&key=${API_KEY}`,
-    { next: { revalidate: 21600 } }
+    { next: { revalidate: 36000 } }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
@@ -146,7 +146,7 @@ export async function getShorts(maxResults = 12): Promise<YouTubeVideo[]> {
   // Busca vídeos curtos (≤ 60s) do canal
   const res = await fetch(
     `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=50&order=date&type=video&videoDuration=short&key=${API_KEY}`,
-    { next: { revalidate: 21600 } }
+    { next: { revalidate: 36000 } }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
