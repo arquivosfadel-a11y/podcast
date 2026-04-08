@@ -116,7 +116,7 @@ export async function getChannelInfo(): Promise<ChannelInfo> {
 export async function getLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
   const res = await fetch(
     `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=${maxResults}&order=date&type=video&eventType=completed&key=${API_KEY}`,
-    { cache: 'no-store' }
+    { next: { revalidate: 1800 } }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
@@ -129,7 +129,7 @@ export async function getLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
 export async function getMostViewedLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
   const res = await fetch(
     `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=50&order=date&type=video&eventType=completed&key=${API_KEY}`,
-    { cache: 'no-store' }
+    { next: { revalidate: 3600 } }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
@@ -146,18 +146,13 @@ export async function getShorts(maxResults = 12): Promise<YouTubeVideo[]> {
   // Busca vídeos curtos (≤ 60s) do canal
   const res = await fetch(
     `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=50&order=date&type=video&videoDuration=short&key=${API_KEY}`,
-    { cache: 'no-store' }
+    { next: { revalidate: 1800 } }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
   const videos = await enrichWithDetails(items, (i) => i.id.videoId)
 
   return videos
-    .filter(v => {
-      // Filtra apenas os que são realmente shorts (≤ 60s)
-      // Como já filtramos por videoDuration=short (< 4min), aceitamos todos
-      return true
-    })
     .sort((a, b) => b.viewCountRaw - a.viewCountRaw)
     .slice(0, maxResults)
     .map(v => ({ ...v, isShort: true, url: `https://www.youtube.com/shorts/${v.id}` }))
