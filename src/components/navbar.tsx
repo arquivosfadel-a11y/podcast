@@ -6,12 +6,14 @@ import { Search, Bell, User } from 'lucide-react'
 import Image from 'next/image'
 
 const navLinks = [
-  { label: 'Início',        href: '#' },
-  { label: 'Episódios',     href: '#ultimos-episodios' },
-  { label: 'Mais Ouvidos',  href: '#mais-ouvidos' },
-  { label: 'Shorts',        href: '#shorts' },
-  { label: 'MulherPodi',    href: '#mulherpodi' },
-  { label: 'Política',      href: '#politica' },
+  { label: 'Início',           href: '#' },
+  { label: 'Episódios',        href: '#ultimos-episodios' },
+  { label: 'Mais Ouvidos',     href: '#mais-ouvidos' },
+  { label: 'Shorts',           href: '#shorts' },
+  { label: 'MulherPodi',       href: '#mulherpodi' },
+  { label: 'Política',         href: '#politica' },
+  { label: 'Entretenimento',   href: '#entretenimento' },
+  { label: 'Business',         href: '#business' },
 ]
 
 export function Navbar() {

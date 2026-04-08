@@ -4,6 +4,7 @@ import { StatsBar } from '@/components/stats-bar'
 import { Top10 } from '@/components/top10'
 import { EpisodeRow } from '@/components/episode-row'
 import { YouTubeSection } from '@/components/youtube-section'
+import { SuggestModal } from '@/components/suggest-modal'
 import { categories, top10 } from '@/lib/data'
 import {
   getLiveVideos,
@@ -14,9 +15,11 @@ import {
 } from '@/lib/youtube'
 import Image from 'next/image'
 
-const CHANNEL_ID          = process.env.YOUTUBE_CHANNEL_ID
-const PLAYLIST_POLITICA   = process.env.YOUTUBE_PLAYLIST_POLITICA
-const PLAYLIST_MULHERPODI = process.env.YOUTUBE_PLAYLIST_MULHERPODI
+const CHANNEL_ID              = process.env.YOUTUBE_CHANNEL_ID
+const PLAYLIST_POLITICA       = process.env.YOUTUBE_PLAYLIST_POLITICA
+const PLAYLIST_MULHERPODI     = process.env.YOUTUBE_PLAYLIST_MULHERPODI
+const PLAYLIST_ENTRETENIMENTO = process.env.YOUTUBE_PLAYLIST_ENTRETENIMENTO
+const PLAYLIST_BUSINESS       = process.env.YOUTUBE_PLAYLIST_BUSINESS
 const CHANNEL_URL         = CHANNEL_ID
   ? `https://www.youtube.com/channel/${CHANNEL_ID}`
   : '#'
@@ -24,22 +27,36 @@ const CHANNEL_URL         = CHANNEL_ID
 export default async function Home() {
   const hasChannel = !!CHANNEL_ID
 
-  const [channelInfo, liveVideos, mostViewedLives, shorts, politicaVideos, mulherpodiVideos] =
+  const [channelInfo, liveVideos, mostViewedLives, shorts, politicaVideos, mulherpodiVideos, entretenimentoVideos, businessVideos] =
     await Promise.all([
-      hasChannel           ? getChannelInfo().catch(() => null)                                          : Promise.resolve(null),
-      hasChannel           ? getLiveVideos(12).catch(() => [])                                           : Promise.resolve([]),
-      hasChannel           ? getMostViewedLiveVideos(12).catch(() => [])                                 : Promise.resolve([]),
-      hasChannel           ? getShorts(12).catch(() => [])                                               : Promise.resolve([]),
-      PLAYLIST_POLITICA    ? getPlaylistVideosByViews(PLAYLIST_POLITICA, 10).catch(() => [])             : Promise.resolve([]),
-      PLAYLIST_MULHERPODI  ? getPlaylistVideosByViews(PLAYLIST_MULHERPODI, 12).catch(() => [])           : Promise.resolve([]),
+      hasChannel                ? getChannelInfo().catch(() => null)                                              : Promise.resolve(null),
+      hasChannel                ? getLiveVideos(12).catch(() => [])                                               : Promise.resolve([]),
+      hasChannel                ? getMostViewedLiveVideos(12).catch(() => [])                                     : Promise.resolve([]),
+      hasChannel                ? getShorts(12).catch(() => [])                                                   : Promise.resolve([]),
+      PLAYLIST_POLITICA         ? getPlaylistVideosByViews(PLAYLIST_POLITICA, 10).catch(() => [])                 : Promise.resolve([]),
+      PLAYLIST_MULHERPODI       ? getPlaylistVideosByViews(PLAYLIST_MULHERPODI, 12).catch(() => [])               : Promise.resolve([]),
+      PLAYLIST_ENTRETENIMENTO   ? getPlaylistVideosByViews(PLAYLIST_ENTRETENIMENTO, 10).catch(() => [])           : Promise.resolve([]),
+      PLAYLIST_BUSINESS         ? getPlaylistVideosByViews(PLAYLIST_BUSINESS, 10).catch(() => [])                 : Promise.resolve([]),
     ])
 
   return (
     <main className="min-h-screen bg-[#0A0A0F] overflow-x-hidden">
+      <SuggestModal />
       <Navbar />
       <Hero />
 
       <div className="relative z-10 -mt-4">
+        {/* ── Background layer (below hero only) ── */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+          {/* dot grid */}
+          <div className="dot-grid absolute inset-0 opacity-100" />
+          {/* floating orbs */}
+          <div className="content-orb-1 absolute -left-40 top-32 w-[600px] h-[600px] rounded-full bg-violet-600 blur-[120px]" />
+          <div className="content-orb-2 absolute right-0 top-[40%] w-[500px] h-[500px] rounded-full bg-orange-500 blur-[140px]" />
+          <div className="content-orb-3 absolute left-1/3 top-[65%] w-[700px] h-[700px] rounded-full bg-indigo-700 blur-[160px]" />
+          <div className="content-orb-4 absolute -right-20 bottom-32 w-[450px] h-[450px] rounded-full bg-purple-600 blur-[130px]" />
+        </div>
+
         <StatsBar />
 
         <div className="mt-4 space-y-2">
@@ -103,6 +120,24 @@ export default async function Home() {
           />
         </div>
 
+        {/* Entretenimento — playlist */}
+        <div id="entretenimento" className="mt-2">
+          <Top10
+            title="Entretenimento"
+            youtubeVideos={entretenimentoVideos.length > 0 ? (entretenimentoVideos as any) : undefined}
+            staticEpisodes={entretenimentoVideos.length === 0 ? (top10 as any) : undefined}
+          />
+        </div>
+
+        {/* Business — playlist */}
+        <div id="business" className="mt-2">
+          <Top10
+            title="Business"
+            youtubeVideos={businessVideos.length > 0 ? (businessVideos as any) : undefined}
+            staticEpisodes={businessVideos.length === 0 ? (top10 as any) : undefined}
+          />
+        </div>
+
         {/* Footer */}
         <footer className="mt-16 py-12 border-t border-white/5">
           <div className="max-w-7xl mx-auto px-6">
@@ -126,7 +161,21 @@ export default async function Home() {
                   <span>(14) 99761-6822</span>
                 </a>
               </div>
-              <p className="text-white/20 text-sm font-poppins">© 2025 Podcafé. Todos os direitos reservados.</p>
+              <div className="text-right">
+                <p className="text-white/20 text-sm font-poppins">© 2023 Podcafé. Todos os direitos reservados.</p>
+                <p className="text-white/15 text-xs font-poppins mt-1">Rua Dr. Ataliba Leonel, 826 — Taquarituba/SP</p>
+                <p className="text-xs font-poppins mt-1">
+                  <span className="text-white/20">By </span>
+                  <a
+                    href="https://www.in9vi.com.br"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#F97316] font-semibold hover:text-orange-400 transition-colors"
+                  >
+                    Agência In9vi
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
         </footer>
