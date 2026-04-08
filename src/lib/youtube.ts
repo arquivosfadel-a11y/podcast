@@ -111,28 +111,34 @@ export async function getChannelInfo(): Promise<ChannelInfo> {
   }
 }
 
-// ── Últimos episódios: vídeos mais recentes do canal ──────────
+// ── Últimos episódios: playlist de uploads do canal ───────────
+// uploads playlist = "UU" + channelId sem "UC"
+function uploadsPlaylistId(): string {
+  return 'UU' + CHANNEL_ID.slice(2)
+}
 
 export async function getLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
+  const playlistId = uploadsPlaylistId()
   const res = await fetch(
-    `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=${maxResults}&order=date&type=video&key=${API_KEY}`,
+    `${BASE_URL}/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=${maxResults}&key=${API_KEY}`,
     { next: { revalidate: 1800 } }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
-  return enrichWithDetails(items, (i) => i.id.videoId)
+  return enrichWithDetails(items, (i) => i.snippet.resourceId?.videoId)
 }
 
-// ── Episódios mais ouvidos: por view count ────────────────────
+// ── Episódios mais ouvidos: uploads ordenados por views ───────
 
 export async function getMostViewedLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
+  const playlistId = uploadsPlaylistId()
   const res = await fetch(
-    `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=30&order=viewCount&type=video&key=${API_KEY}`,
+    `${BASE_URL}/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${API_KEY}`,
     { next: { revalidate: 3600 } }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
-  const videos = await enrichWithDetails(items, (i) => i.id.videoId)
+  const videos = await enrichWithDetails(items, (i) => i.snippet.resourceId?.videoId)
   return videos
     .sort((a, b) => b.viewCountRaw - a.viewCountRaw)
     .slice(0, maxResults)
