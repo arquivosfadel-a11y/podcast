@@ -113,7 +113,7 @@ export function SuggestModal() {
                       <textarea
                         value={text}
                         onChange={e => setText(e.target.value)}
-                        placeholder="Ex: Fulano de Tal, empresário de Taquarituba..."
+                        placeholder="Ex: Fulano de Tal, empresário da sua cidade..."
                         rows={3}
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-poppins placeholder-white/25 resize-none focus:outline-none focus:border-[#F97316]/50 focus:bg-white/7 transition-all duration-200"
                       />

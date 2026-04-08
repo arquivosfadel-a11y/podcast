@@ -111,25 +111,23 @@ export async function getChannelInfo(): Promise<ChannelInfo> {
   }
 }
 
-// ── Últimos episódios: tab "Ao Vivo" (lives) ─────────────────
+// ── Últimos episódios: vídeos mais recentes do canal ──────────
 
 export async function getLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
   const res = await fetch(
-    `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=${maxResults}&order=date&type=video&eventType=completed&key=${API_KEY}`,
+    `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=${maxResults}&order=date&type=video&key=${API_KEY}`,
     { next: { revalidate: 1800 } }
   )
   const data = await res.json()
   const items: any[] = data.items ?? []
-  const videos = await enrichWithDetails(items, (i) => i.id.videoId)
-  return videos.map(v => ({ ...v, isLive: true }))
+  return enrichWithDetails(items, (i) => i.id.videoId)
 }
 
-// ── Episódios mais ouvidos: lives por view count ──────────────
+// ── Episódios mais ouvidos: por view count ────────────────────
 
 export async function getMostViewedLiveVideos(maxResults = 12): Promise<YouTubeVideo[]> {
-  // Busca mais para poder ordenar por views
   const res = await fetch(
-    `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=30&order=viewCount&type=video&eventType=completed&key=${API_KEY}`,
+    `${BASE_URL}/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=30&order=viewCount&type=video&key=${API_KEY}`,
     { next: { revalidate: 3600 } }
   )
   const data = await res.json()
@@ -138,7 +136,6 @@ export async function getMostViewedLiveVideos(maxResults = 12): Promise<YouTubeV
   return videos
     .sort((a, b) => b.viewCountRaw - a.viewCountRaw)
     .slice(0, maxResults)
-    .map(v => ({ ...v, isLive: true }))
 }
 
 // ── Shorts: tab "Shorts" por view count desc ─────────────────
