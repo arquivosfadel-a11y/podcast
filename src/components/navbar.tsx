@@ -2,18 +2,19 @@
 
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import { useState } from 'react'
-import { Search, Bell, User } from 'lucide-react'
+import { Search, Bell, User, Trophy } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const navLinks = [
-  { label: 'Início',           href: '#' },
-  { label: 'Episódios',        href: '#ultimos-episodios' },
-  { label: 'Mais Ouvidos',     href: '#mais-ouvidos' },
-  { label: 'Shorts',           href: '#shorts' },
-  { label: 'MulherPodi',       href: '#mulherpodi' },
-  { label: 'Política',         href: '#politica' },
-  { label: 'Entretenimento',   href: '#entretenimento' },
-  { label: 'Business',         href: '#business' },
+  { label: 'Início',           href: '/#' },
+  { label: 'Episódios',        href: '/#ultimos-episodios' },
+  { label: 'Mais Ouvidos',     href: '/#mais-ouvidos' },
+  { label: 'Shorts',           href: '/#shorts' },
+  { label: 'MulherPodi',       href: '/#mulherpodi' },
+  { label: 'Política',         href: '/#politica' },
+  { label: 'Entretenimento',   href: '/#entretenimento' },
+  { label: 'Business',         href: '/#business' },
 ]
 
 export function Navbar() {
@@ -60,6 +61,19 @@ export function Navbar() {
               {item.label}
             </motion.a>
           ))}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + navLinks.length * 0.05 }}
+          >
+            <Link
+              href="/regulamento"
+              className="flex items-center gap-1.5 text-sm font-poppins font-semibold text-[#F97316] hover:text-orange-300 transition-colors duration-200 bg-[#F97316]/10 hover:bg-[#F97316]/20 border border-[#F97316]/30 rounded-full px-3 py-1"
+            >
+              <Trophy className="w-3 h-3" />
+              Sorteio
+            </Link>
+          </motion.div>
         </div>
 
         {/* Actions */}
